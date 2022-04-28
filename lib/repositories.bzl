@@ -2,8 +2,8 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
-load("//lib/private:jq_toolchain.bzl", "JQ_PLATFORMS", "jq_host_alias_repo", "jq_platform_repo", "jq_toolchains_repo", _DEFAULT_JQ_VERSION = "DEFAULT_JQ_VERSION")
-load("//lib/private:yq_toolchain.bzl", "YQ_PLATFORMS", "yq_host_alias_repo", "yq_platform_repo", "yq_toolchains_repo", _DEFAULT_YQ_VERSION = "DEFAULT_YQ_VERSION")
+load("//lib/private:jq_toolchain.bzl", "JQ_PLATFORMS", "jq_platform_repo", "jq_toolchains_repo", _DEFAULT_JQ_VERSION = "DEFAULT_JQ_VERSION")
+load("//lib/private:yq_toolchain.bzl", "YQ_PLATFORMS", "yq_platform_repo", "yq_toolchains_repo", _DEFAULT_YQ_VERSION = "DEFAULT_YQ_VERSION")
 
 def aspect_bazel_lib_dependencies():
     "Load dependencies required by aspect rules"
@@ -39,7 +39,12 @@ def register_jq_toolchains(name = "jq", version = DEFAULT_JQ_VERSION, register =
         if register:
             native.register_toolchains("@%s_toolchains//:%s_toolchain" % (name, platform))
 
-    jq_host_alias_repo(name = name)
+    # Create a convienence repository for the host platform with a predictable name
+    jq_platform_repo(
+        name = name,
+        platform = repo_utils.os_arch_name(repository_ctx),
+        version = version,
+    )
 
     jq_toolchains_repo(
         name = "%s_toolchains" % name,
@@ -64,7 +69,12 @@ def register_yq_toolchains(name = "yq", version = DEFAULT_YQ_VERSION, register =
         if register:
             native.register_toolchains("@%s_toolchains//:%s_toolchain" % (name, platform))
 
-    yq_host_alias_repo(name = name)
+    # Create a convienence repository for the host platform with a predictable name
+    yq_platform_repo(
+        name = name,
+        platform = repo_utils.os_arch_name(repository_ctx),
+        version = version,
+    )
 
     yq_toolchains_repo(
         name = "%s_toolchains" % name,
